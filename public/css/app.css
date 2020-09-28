@@ -1,0 +1,13 @@
+@import url(https://fonts.googleapis.com/css?family=Nunito);.navbar-laravel {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.v-data-footer__icons-before {
+  color: black !important;
+}
+
+.expired {
+  background-color: rgba(231, 76, 60, 0.8);
+}
+
