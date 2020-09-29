@@ -11,6 +11,8 @@ namespace App\Http\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Str;
+
 abstract class QueryFilter
 {
     /**
@@ -39,7 +41,7 @@ abstract class QueryFilter
         $this->builder = $builder;
 
         foreach ($this->fields() as $field => $value) {
-            $method = camel_case($field);
+            $method = Str::camel($field);
             if (method_exists($this, $method)) {
                 call_user_func_array([$this, $method], (array)$value);
             }
