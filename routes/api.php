@@ -25,7 +25,7 @@ Route::put('/reservations/{reservation}', 'ReservationController@update')->name(
 
 Route::get('/types', 'TypeController@index');
 
-Route::get('/artworks', 'ArtworkController@index')->middleware('auth:sanctum');
+Route::get('/artworks', 'ArtworkController@index')->middleware('auth:sanctum','can:update,Artwork');
 
 Route::middleware('isAdmin')->group(function () {
     //artworks
