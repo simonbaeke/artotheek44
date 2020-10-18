@@ -5,6 +5,8 @@ namespace App\Http;
 use App\Http\Middleware\isAdmin;
 use App\Http\Middleware\selfOrAdmin;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+
 
 class Kernel extends HttpKernel
 {
@@ -41,6 +43,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
+            EnsureFrontendRequestsAreStateful::class,
             'throttle:180,1',
             'bindings',
             //\Barryvdh\Cors\HandleCors::class
