@@ -2,12 +2,12 @@
 
 namespace App\Policies;
 
-use App\Artwork;
+use App\Rent;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
-class ArtworkPolicy
+class RentPolicy
 {
     use HandlesAuthorization;
 
@@ -26,10 +26,10 @@ class ArtworkPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\User  $user
-     * @param  \App\Models\Artwork  $artwork
+     * @param  \App\Models\Rent  $rent
      * @return mixed
      */
-    public function view(User $user, Artwork $artwork)
+    public function view(User $user, Rent $rent)
     {
         //
     }
@@ -42,47 +42,41 @@ class ArtworkPolicy
      */
     public function create(User $user)
     {
-        return $user->hasRole('admin')
-            ? Response::allow()
-            : Response::deny('you do not have permission to update an artwork');
+        //
     }
 
     /**
      * Determine whether the user can update the model.
      *
      * @param  \App\User  $user
-     * @param  \App\Models\Artwork  $artwork
+     * @param  \App\Models\Rent  $rent
      * @return mixed
      */
-    public function update(User $user, Artwork $artwork)
+    public function update(User $user, Rent $rent)
     {
-        return $user->hasRole('admin')
-            ? Response::allow()
-            : Response::deny('you do not have permission to create an artwork');
+        //
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\User  $user
-     * @param  \App\Models\Artwork  $artwork
+     * @param  \App\Models\Rent  $rent
      * @return mixed
      */
-    public function delete(User $user, Artwork $artwork)
+    public function delete(User $user, Rent $rent)
     {
-        return $user->hasRole('superadmin')
-            ? Response::allow()
-            : Response::deny('you do not have permission to delete an artwork');
+        //
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\User  $user
-     * @param  \App\Models\Artwork  $artwork
+     * @param  \App\Models\Rent  $rent
      * @return mixed
      */
-    public function restore(User $user, Artwork $artwork)
+    public function restore(User $user, Rent $rent)
     {
         //
     }
@@ -91,10 +85,10 @@ class ArtworkPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\User  $user
-     * @param  \App\Models\Artwork  $artwork
+     * @param  \App\Models\Rent  $rent
      * @return mixed
      */
-    public function forceDelete(User $user, Artwork $artwork)
+    public function forceDelete(User $user, Rent $rent)
     {
         //
     }

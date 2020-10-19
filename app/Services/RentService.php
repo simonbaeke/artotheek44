@@ -9,11 +9,11 @@
 namespace App\Services;
 
 
-use App\Actions\Rent\Stop;
 use App\Http\Filter\RentFilter;
 use App\Rent;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 
 class RentService
@@ -27,7 +27,14 @@ class RentService
 
     public function index(RentFilter $rentFilter, Request $request)
     {
-        return Rent::filter($rentFilter)->with(['subscription', 'subscription.user', 'expires', 'artwork'])->get();
+        if (Auth::user()->hasRole('admin')) {
+            return Rent::filter($rentFilter)->with(['subscription', 'subscription.user', 'expires', 'artwork'])->get();
+        }
+
+       Return Rent::whereHas('subscription.user', function (Builder $q)   {
+           $q->where('id',Auth::user()->id);
+       })->filter($rentFilter)->with(['subscription', 'subscription.user', 'expires', 'artwork'])->get();
+
     }
 
     public function store($attributes, $createRent)
@@ -50,7 +57,7 @@ class RentService
 
         $attributes = $request->all();
 
-        if ($request->has('returned') && $request->input('returned')==true){
+        if ($request->has('returned') && $request->input('returned') == true) {
             $rent->update([
                 'returned_at' => Carbon::now()
             ]);
