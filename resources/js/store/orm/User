@@ -1,0 +1,45 @@
+// User Model
+import {Model} from '@vuex-orm/core'
+import Subscription from './Subscription'
+import Reservation from "./Reservation";
+import Rent from "./Rent";
+import Role from './Role'
+import RoleUser from './RoleUser'
+import Preferences from './Preferences'
+import Order from "./Order";
+import Invoice from "./Invoice";
+import Address from "./Address";
+
+export default class User extends Model {
+    // This is the name used as module name of the Vuex Store.
+    static get entity() {
+        return 'users'
+    }
+
+    // List of all fields (schema) of the post model. `this.attr` is used
+    // for the generic field type. The argument is the default value.
+    static fields() {
+        return {
+            id: this.attr(null),
+            firstname: this.attr(''),
+            lastname: this.attr(''),
+            fullname:this.attr(''),
+            email: this.attr(''),
+            verified: this.boolean(''),
+            subscriptions: this.hasMany(Subscription, 'user_id'),
+            rents: this.hasManyThrough(Rent, Subscription, 'user_id', 'subscription_id'),
+            reservations: this.hasManyThrough(Reservation, Subscription, 'user_id', 'subscription_id'),
+            roles: this.belongsToMany(Role, RoleUser, 'user_id', 'role_id'),
+            phone: this.attr(null),
+            phoneNumbers: this.attr(null),
+            preferences: this.hasOne(Preferences, 'user_id'),
+            orders: this.hasMany(Order, 'user_id'),
+            invoices: this.hasMany(Invoice, 'user_id'),
+            address: this.hasOne(Address, 'user_id')
+
+        }
+    }
+
+
+}
+

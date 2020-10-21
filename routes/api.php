@@ -161,6 +161,12 @@ Route::middleware('isAdmin','auth:sanctum')->group(function () {
 });
 
 
+//Data
+
+Route::get('data','LandingController@read');
+Route::post('data','LandingController@write')->middleware('auth:sanctum');
+
+
 
 
 

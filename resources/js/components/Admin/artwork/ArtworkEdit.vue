@@ -1,0 +1,324 @@
+<template>
+    <v-app>
+        <v-subheader>
+            <h1 class="mr-3 blue--text">Wijzig Kunstwerk</h1>
+        </v-subheader>
+        <v-card text>
+            <v-toolbar text color="lime lighten-2">
+                <v-toolbar-title>{{newArtwork.name}}</v-toolbar-title>
+                <v-spacer/>
+                <v-item-group>
+                    <v-btn text :loading="saving" @click="saveArtwork">Opslaan</v-btn>
+                    <v-btn text @click="$emit('cancel')">Annuleren</v-btn>
+                </v-item-group>
+            </v-toolbar>
+            <v-card-text>
+                <v-form>
+                    <v-container>
+                        <v-layout row wrap>
+                            <v-flex xs12 md4>
+                                <v-text-field
+                                        :error="newArtwork.hasError('name')"
+                                        :error-messages="newArtwork.error('name','Titel')"
+                                        v-model="newArtwork.name"
+                                        label="Titel">
+                                </v-text-field>
+                            </v-flex>
+                            <v-flex xs12 md5 offset-md1>
+                                <v-layout row>
+                                    <v-flex xs4>
+                                        <v-text-field
+                                                readonly
+                                                v-model="precode"
+                                                label="code"/>
+                                    </v-flex>
+
+                                    <v-flex xs2>
+                                        <v-text-field
+                                                readonly
+
+                                                value="-"/>
+                                    </v-flex>
+                                    <v-flex xs4>
+                                        <v-text-field
+                                                v-model="newArtwork.code"
+                                                :error="newArtwork.hasError('code')"
+                                                :error-messages="newArtwork.error('code','Code')"
+                                                :append-icon="newArtwork.artist_id!=null&&newArtwork.type_id!=null?'refresh':''"
+                                                v-on:click:append="getCode"
+
+                                                type="number"
+                                        />
+                                    </v-flex>
+
+                                </v-layout>
+
+                            </v-flex>
+                        </v-layout>
+
+
+                        <v-layout row wrap>
+                            <v-flex xs12 sm6>
+                                <v-layout row wrap>
+                                    <v-flex xs4>
+                                        <v-text-field
+                                                :error="newArtwork.hasError('height')"
+                                                :error-messages="newArtwork.error('height','Hoogte')"
+                                                label="hoogte"
+                                                v-model="newArtwork.height"
+                                        />
+                                    </v-flex>
+                                    <v-flex xs4 class="pr-2">
+                                        <v-text-field
+                                                :error="newArtwork.hasError('width')"
+                                                :error-messages="newArtwork.error('width','Breedte')"
+                                                label="breedte"
+                                                v-model="newArtwork.width"
+                                        />
+                                    </v-flex>
+                                    <v-flex xs4 class="pr-2">
+                                        <v-text-field
+                                                :error="newArtwork.hasError('length')"
+                                                :error-messages="newArtwork.error('length','Diepte')"
+                                                label="diepte"
+                                                v-model="newArtwork.length"/>
+                                    </v-flex>
+
+
+                                </v-layout>
+                                <v-layout row wrap>
+                                    <v-flex xs4>
+                                        <v-checkbox v-model="newArtwork.forsale" label="te koop"></v-checkbox>
+                                    </v-flex>
+                                    <v-flex xs8>
+                                        <v-text-field
+                                                :error="newArtwork.hasError('price')"
+                                                :error-messages="newArtwork.error('price','Prijs')"
+                                                v-model="newArtwork.price"
+                                                label="prijs"/>
+                                    </v-flex>
+                                </v-layout>
+
+
+                                <v-flex xs12>
+                                    <v-autocomplete
+                                            :items="types"
+                                            item-text="name"
+                                            item-value="id"
+                                            label="Type"
+                                            v-model="newArtwork.type_id"
+                                            prepend-icon="add"
+                                            v-on:click:prepend="addType"
+
+                                    ></v-autocomplete>
+                                </v-flex>
+
+
+                                <v-flex xs12>
+                                    <v-autocomplete
+                                            :items="artists"
+                                            item-text="name"
+                                            item-value="id"
+                                            label="Artiest"
+                                            v-model="newArtwork.artist_id"
+                                            prepend-icon="add"
+                                            v-on:click:prepend="addArtist"
+
+                                    ></v-autocomplete>
+                                </v-flex>
+                                <v-flex d-flex xs6 sm6 class="mt-3">
+                                    <input type="file" id="Afbeelding"
+                                           @change="processFile($event)">
+                                    <span class="red--text" v-if="newArtwork.hasError('thumbnailurl')">
+                                        {{newArtwork.error('thumbnailurl','Afbeelding')}}
+                                    </span>
+                                </v-flex>
+
+                            </v-flex>
+
+                            <v-flex xs12 sm6>
+
+                                <div v-if="item.image">
+                                    <v-img :src="item.image" alt="no image selected" height="300px" contain></v-img>
+
+                                </div>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+                </v-form>
+            </v-card-text>
+        </v-card>
+
+    </v-app>
+</template>
+
+<script>
+    import Artist from '../../../store/orm/Artist'
+    import appContent from '../basis/content'
+    import {Form} from "../../../Form";
+
+    export default {
+        name: "ArtworkEdit",
+        props: ['artwork'],
+        data() {
+            return {
+                forsale: false,
+                saving: false,
+                createArtist: false,
+                createType: false,
+                newArtwork: new Form({
+                    name: "",
+                    type_id: null,
+                    artist_id: null,
+                    width: "",
+                    height: "",
+                    length: "",
+                    code: "",
+                    price: "",
+                    forsale: '',
+                    thumbnailurl: "",
+
+                }),
+                item: {
+                    image: false
+                },
+                precode: ""
+            }
+        },
+        methods: {
+            createImage(item, file) {
+                var image = new Image();
+                var reader = new FileReader();
+
+                reader.onload = (e) => {
+                    item.image = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            },
+
+            removeImage: function (item) {
+                item.image = false;
+            },
+
+            processFile(event) {
+                this.newArtwork.thumbnailurl = event.target.files[0];
+                if (!this.newArtwork.thumbnailurl)
+                    return;
+                this.createImage(this.item, this.newArtwork.thumbnailurl);
+            },
+
+            saveArtwork() {
+                this.saving = true;
+                let formData = new FormData();
+                formData.append('name', this.newArtwork.name);
+
+                if (this.newArtwork.thumbnailurl != "") {
+                    formData.append('thumbnailurl', this.newArtwork.thumbnailurl);
+
+                }
+
+                formData.append('type_id', this.newArtwork.type_id);
+                formData.append('artist_id', this.newArtwork.artist_id);
+                formData.append('price', this.newArtwork.price);
+                formData.append('width', this.newArtwork.width);
+                formData.append('length', this.newArtwork.length);
+                formData.append('height', this.newArtwork.height);
+                formData.append('code', this.newArtwork.code)
+                formData.append('forsale', this.newArtwork.forsale)
+                formData.append('_method', 'put')
+                formData.append('artwork_id', this.artwork.id)
+
+
+                this.$store.dispatch('updateArtwork', {id: this.artwork.id, data: formData}).then(response => {
+
+
+                    this.saving = false;
+                    this.$emit('cancel')
+                }).catch(error => {
+                    this.saving = false
+
+                    console.log(error.response)
+                    this.newArtwork.setErrors(error.response.data.errors)
+
+                })
+            },
+            addArtist() {
+                this.createArtist = true;
+            },
+
+            addType() {
+                this.createType = true;
+            },
+            fullname(artist) {
+                return artist.firstname + " " + artist.lastname
+            },
+            artistCreated(id) {
+                this.createArtist = false
+                this.artwork.artist_id = id
+            },
+            getCode() {
+                axios.post('api/artworks/code', {
+
+                    type_id: this.artwork.type_id,
+                    artist_id: this.artwork.artist_id
+
+                }).then(response => {
+                    this.newArtwork.code = response.data.code
+                    this.precode = response.data.precode
+                })
+            }
+        },
+        computed: {
+            types() {
+                return this.$store.getters.getTypes
+            },
+
+            artists() {
+                return Artist.getters('getAll').map(artist => {
+                    return {
+                        name: this.fullname(artist),
+                        id: artist.id
+                    }
+                })
+            }
+        },
+        mounted() {
+            this.newArtwork.name = this.artwork.name
+            this.newArtwork.type_id = this.artwork.type_id
+            this.newArtwork.artist_id = this.artwork.artist_id
+            this.newArtwork.width = this.artwork.width
+            this.newArtwork.height = this.artwork.height
+            this.newArtwork.length = this.artwork.length
+            this.newArtwork.price = this.artwork.price
+            this.newArtwork.forsale = this.artwork.forsale
+            this.newArtwork.code = this.artwork.code.split('-')[2]
+
+            axios.post('/api/artworks/code', {
+
+                type_id: this.artwork.type_id,
+                artist_id: this.artwork.artist_id
+
+            }).then(response => {
+                // this.newArtwork.code = response.data.code
+                this.precode = response.data.precode
+            })
+
+            axios({
+                url: '/api/artworks/' + this.artwork.id + '/image',
+                method: 'GET',
+                responseType: 'blob'
+            }).then(response => {
+                this.createImage(this.item, response.data)
+            })
+
+
+        },
+        components: {
+            appContent
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>
